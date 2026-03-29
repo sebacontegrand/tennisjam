@@ -24,6 +24,18 @@ export default function Home() {
             </button>
           </Link>
 
+          <Link href="/racquet" className="w-full">
+            <button className="w-full h-14 bg-tennis-clay hover:bg-tennis-clay/90 text-white rounded-xl font-bold text-lg shadow-xl shadow-tennis-clay/20 flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95">
+              🎾 Ver Raquetas
+            </button>
+          </Link>
+
+          <Link href="/shoe" className="w-full">
+            <button className="w-full h-14 bg-tennis-green hover:bg-tennis-green/90 text-white rounded-xl font-bold text-lg shadow-xl shadow-tennis-green/20 flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95">
+              👟 Ver Zapatillas
+            </button>
+          </Link>
+
           <Link href="/admin" className="w-full">
             <button className="w-full h-14 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-lg border border-white/10 flex items-center justify-center gap-3 transition-colors">
               <Shield size={20} className="text-tennis-clay" /> Admin / Gestor
