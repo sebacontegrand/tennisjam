@@ -47,6 +47,12 @@ export default function Home() {
               Ver Partido Demo <ArrowRight size={20} />
             </button>
           </Link>
+
+          <Link href="/tennis" className="w-full">
+            <button className="w-full h-14 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-bold text-lg shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95">
+              ⚙️ Game Theory Simulator
+            </button>
+          </Link>
         </div>
       </div>
 
