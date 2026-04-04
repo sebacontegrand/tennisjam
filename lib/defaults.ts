@@ -1,9 +1,9 @@
 import type { PlayerStrategy, ServePayoffMatrix } from '../types'
 
 export const DEFAULT_SERVE_PAYOFFS: ServePayoffMatrix = {
-  wide: { wide: 52, body: 71, T: 73 },
-  body: { wide: 69, body: 50, T: 70 },
-  T:    { wide: 72, body: 71, T: 51 },
+  wide: { wide: 49, body: 62, T: 63 },
+  body: { wide: 61, body: 50, T: 60 },
+  T:    { wide: 62, body: 61, T: 49 },
 }
 
 export const PLAYER_PRESETS: Record<string, PlayerStrategy> = {

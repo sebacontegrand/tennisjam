@@ -49,37 +49,36 @@ export default function TennisCourtVisualization({ points, language }: Props) {
     })
   }, [recentPoints.length])
 
-  // Get coordinates for serve zone based on singles tennis rules
-  // In singles, court is 27 feet wide (excluding alleys - doubles feature)
-  // Serves must land in service box diagonally opposite the server
-  // Server alternates: Ad box (left) -> Deuce box (right) -> Ad box -> Deuce box...
-  // - Ad Court box (left diagonal): x ~20-115, y ~25-75
-  // - Deuce Court box (right diagonal): x ~145-240, y ~25-75
+  // Get coordinates for serve zone based on actual serve zones
+  // Map serve zones to court positions:
+  // - 'wide': Ad box (left diagonal)
+  // - 'body': center area (between boxes or center service line)
+  // - 'T': Deuce box (right diagonal near T line)
   const getZoneCoords = (zone: string, index: number) => {
-    // Alternate between diagonal service boxes - SINGLES RULE
-    // Odd serves go to Ad box, even serves go to Deuce box
-    const isAdBox = index % 2 === 0 // 1st serve to Ad, 2nd to Deuce, 3rd to Ad...
-    
     let xStart = 0
     let xEnd = 0
     
-    if (isAdBox) {
-      // Ad Court service box (left diagonal from server)
+    if (zone === 'wide') {
+      // Ad box - left side wide
       xStart = 20
-      xEnd = 115
+      xEnd = 100
+    } else if (zone === 'body') {
+      // Center service area - middle of court
+      xStart = 105
+      xEnd = 155
     } else {
-      // Deuce Court service box (right diagonal from server)
-      xStart = 145
+      // Deuce box / T - right side near center line
+      xStart = 160
       xEnd = 240
     }
     
-    // Distribute balls within the service box
-    const positionInBox = ((index % 5) / 5)
-    const x = xStart + positionInBox * (xEnd - xStart) + (Math.random() - 0.5) * 8
+    // Distribute balls within the zone box with variation
+    const positionInZone = ((index % 6) / 6)
+    const x = xStart + positionInZone * (xEnd - xStart) + (Math.random() - 0.5) * 6
     
     // Y coordinates for service box (top of court)
     const yBase = 50
-    const yVariation = (Math.sin(index * 0.4) - 0.3) * 12
+    const yVariation = (Math.sin(index * 0.3) - 0.2) * 10
     
     return { x, y: yBase + yVariation }
   }

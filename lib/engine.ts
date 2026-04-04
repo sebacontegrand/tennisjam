@@ -10,13 +10,12 @@ import type {
   MatchScore,
   SimulationConfig,
   MatchResult,
-  MatchStats,
 } from '../types'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 export function weightedSample<T extends string>(mix: Record<T, number>): T {
-  let r = Math.random()
+  const r = Math.random()
   let cum = 0
   for (const k in mix) {
     cum += mix[k]
@@ -27,6 +26,16 @@ export function weightedSample<T extends string>(mix: Record<T, number>): T {
 
 function clamp(v: number, lo = 0, hi = 1) {
   return Math.max(lo, Math.min(hi, v))
+}
+
+function getRallyContinuationProb(server: PlayerStrategy, returner: PlayerStrategy) {
+  // Base: most successfully returned serves continue into a rally.
+  const base = 0.8
+  const styleDelta =
+    (returner.rallyLength - 0.5) * 0.18 +
+    (0.5 - server.rallyLength) * 0.1 +
+    (0.5 - server.rallyAggression) * 0.05
+  return clamp(base + styleDelta, 0.68, 0.93)
 }
 
 // ─── Nash Equilibrium (Fictitious Play) ─────────────────────────────────────
@@ -152,7 +161,7 @@ function getTacticalShotOutcome(
   defender: PlayerStrategy,
   isServerAttacking: boolean
 ): { winProb: number; description: string } {
-  let baseProb = 0.5 + (aggressor.rallyAggression - defender.rallyAggression) * 0.15
+  const baseProb = 0.5 + (aggressor.rallyAggression - defender.rallyAggression) * 0.15
 
   switch (decision) {
     case 'aggressive':
@@ -230,73 +239,83 @@ export function simulatePoint(
 
   // 4. If point goes to rally
   let rallyLength = 1
-  if (!serverWins && Math.random() > 0.35) {
-    // Point continues into rally
-    let serverWinProb = 0.52 + (server.rallyAggression - returner.rallyAggression) * 0.15
+  if (!serverWins) {
+    // Serve was returned. If the point does not continue, it still had the serve + return.
+    const rallyContinuationProb = getRallyContinuationProb(server, returner)
+    if (Math.random() <= rallyContinuationProb) {
+      // Point continues into rally
 
-    // Net approach opportunity
-    if (Math.random() < server.netApproachFreq) {
-      const approachWin = Math.random() < 0.65
-      serverWins = approachWin
-      rallyLength = 3
-      events.push({
-        stage: 'approach',
-        serverAction: 'Approach volley',
-        returnerAction: 'Pass/lob',
-        rally: 2,
-        outcome: approachWin ? 'server_win' : 'returner_win',
-        winProbability: 0.65,
-      })
-    } else {
-      // Baseline rally with tactical decisions
-      const rallies = Math.floor(Math.random() * 5) + 3 // longer rallies possible
-      for (let r = 2; r <= rallies; r++) {
-        const isServerAttacking = r % 2 === 0
-        const aggressor = isServerAttacking ? server : returner
-        const defender = isServerAttacking ? returner : server
-
-        // Determine if court is open (opponent is out of position)
-        const isOpen = Math.random() < 0.3 + Math.abs(aggressor.rallyAggression - 0.5) * 0.2
-
-        // Choose tactical approach
-        const tacticalDecision = chooseTacticalShot({
-          rally: r,
-          isOpen,
-          aggressor,
-          defender,
-          isServerAttacking,
-        })
-
-        // Calculate win probability based on tactic
-        const { winProb, description } = getTacticalShotOutcome(
-          tacticalDecision,
-          aggressor,
-          defender,
-          isServerAttacking
-        )
-
-        const aggWin = Math.random() < winProb
-
+      // Net approach opportunity
+      if (Math.random() < server.netApproachFreq) {
+        const approachWin = Math.random() < 0.65
+        serverWins = approachWin
+        rallyLength = 3
         events.push({
-          stage: 'rally',
-          serverAction: isServerAttacking
-            ? `${tacticalDecision === 'aggressive' ? 'Aggressive' : tacticalDecision === 'lob' ? 'Lob' : 'Shot'}`
-            : 'Return',
-          returnerAction: isServerAttacking
-            ? 'Return'
-            : `${tacticalDecision === 'aggressive' ? 'Aggressive' : tacticalDecision === 'lob' ? 'Lob' : 'Shot'}`,
-          rally: r,
-          outcome: aggWin ? 'server_win' : 'returner_win',
-          winProbability: winProb,
-          tacticalDecision,
+          stage: 'approach',
+          serverAction: 'Approach volley',
+          returnerAction: 'Pass/lob',
+          rally: 3,
+          outcome: approachWin ? 'server_win' : 'returner_win',
+          winProbability: 0.65,
         })
+      } else {
+        // Baseline rally with tactical decisions
+        const rallies = Math.floor(Math.random() * 5) + 3 // longer rallies possible
+        for (let r = 2; r <= rallies; r++) {
+          const isServerAttacking = r % 2 === 0
+          const aggressor = isServerAttacking ? server : returner
+          const defender = isServerAttacking ? returner : server
 
-        if (aggWin) {
-          serverWins = isServerAttacking
-          rallyLength = r
-          break
+          // Determine if court is open (opponent is out of position)
+          const isOpen = Math.random() < 0.3 + Math.abs(aggressor.rallyAggression - 0.5) * 0.2
+
+          // Choose tactical approach
+          const tacticalDecision = chooseTacticalShot({
+            rally: r,
+            isOpen,
+            aggressor,
+            defender,
+            isServerAttacking,
+          })
+
+          // Calculate win probability based on tactic
+          const { winProb, description } = getTacticalShotOutcome(
+            tacticalDecision,
+            aggressor,
+            defender,
+            isServerAttacking
+          )
+
+          const aggWin = Math.random() < winProb
+
+          events.push({
+            stage: 'rally',
+            serverAction: isServerAttacking
+              ? `${tacticalDecision === 'aggressive' ? 'Aggressive' : tacticalDecision === 'lob' ? 'Lob' : 'Shot'}`
+              : 'Return',
+            returnerAction: isServerAttacking
+              ? 'Return'
+              : `${tacticalDecision === 'aggressive' ? 'Aggressive' : tacticalDecision === 'lob' ? 'Lob' : 'Shot'}`,
+            rally: r + 1,
+            outcome: aggWin ? 'server_win' : 'returner_win',
+            winProbability: winProb,
+            tacticalDecision,
+          })
+
+          if (aggWin) {
+            serverWins = isServerAttacking
+            rallyLength = r + 1
+            break
+          }
+        }
+        // If no deciding strike occurs in the loop, the rally still ends at the last shot.
+        if (rallyLength === 1) {
+          rallyLength = rallies + 1
+          serverWins = false
         }
       }
+    } else {
+      rallyLength = 2
     }
   }
 
@@ -401,8 +420,8 @@ export function simulateMatch(config: SimulationConfig): MatchResult {
   let pointId = 0
 
   const zoneCounts = { wide: 0, body: 0, T: 0 }
-  let totalServerWins = [0, 0]
-  let totalPoints = [0, 0]
+  const totalServerWins = [0, 0]
+  const totalPoints = [0, 0]
   let rallyTotal = 0
   let breakPoints = 0
   let bpConverted = 0
@@ -476,6 +495,7 @@ export function simulateMatch(config: SimulationConfig): MatchResult {
         totalPoints[1] ? Math.round((totalServerWins[1] / totalPoints[1]) * 100) : 0,
       ],
       avgRallyLength: Math.round((rallyTotal / pointId) * 10) / 10,
+      avgShotsPerPoint: Math.round((rallyTotal / pointId) * 10) / 10,
       aces: Math.floor(pointId * 0.05),
       breakPoints,
       breakPointsConverted: bpConverted,

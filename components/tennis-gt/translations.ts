@@ -105,7 +105,7 @@ export const translations = {
     serveWinPct: 'Serve win %',
     serveWinPctSub: 'A / B on serve',
     aSlashB: 'A / B on serve',
-    avgRally: 'Avg rally',
+    avgRally: 'Avg shots',
     avgRallySub: 'shots per point',
     shotsPer: 'shots per point',
     breakPoints: 'Break points',
@@ -116,6 +116,7 @@ export const translations = {
     nashDeviationScore: 'Nash deviation score',
     nashDeviation: 'Nash deviation score',
     lastPoints: 'Last 30 points (most recent first)',
+    timelineHint: 'Bar height = shots · color = point winner · top line = break point',
     configStrategies: 'Configure strategies and run a simulation',
     
     // Court Visualization
@@ -264,7 +265,7 @@ export const translations = {
     serveWinPct: '% de ganancia en saques',
     serveWinPctSub: 'A / B en saques',
     aSlashB: 'A / B en saques',
-    avgRally: 'Intercambio promedio',
+    avgRally: 'Golpes promedio',
     avgRallySub: 'golpes por punto',
     shotsPer: 'golpes por punto',
     breakPoints: 'Puntos de quiebre',
@@ -275,6 +276,7 @@ export const translations = {
     nashDeviationScore: 'Puntuación de desviación Nash',
     nashDeviation: 'Puntuación de desviación Nash',
     lastPoints: 'Últimos 30 puntos (más reciente primero)',
+    timelineHint: 'Altura = golpes · color = ganador del punto · línea superior = break point',
     configStrategies: 'Configura estrategias y ejecuta una simulación',
     
     // Court Visualization

@@ -984,6 +984,95 @@ export default function TennisGameTheory() {
           gap: 0.5rem;
         }
 
+        .points-timeline-wrap {
+          margin: 0 2rem;
+          padding: 1rem;
+          border: 1px solid var(--border);
+          border-radius: 0.75rem;
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+        }
+
+        .timeline-legend-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.75rem;
+          margin-bottom: 0.75rem;
+          flex-wrap: wrap;
+          font-size: 0.8rem;
+          color: var(--text-muted);
+        }
+
+        .timeline-legend-item {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          font-weight: 600;
+          color: var(--text);
+        }
+
+        .timeline-winner-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+        }
+
+        .timeline-note {
+          opacity: 0.9;
+        }
+
+        .points-timeline {
+          display: grid;
+          grid-template-columns: repeat(30, minmax(0, 1fr));
+          gap: 0.3rem;
+          align-items: end;
+          height: 84px;
+          padding: 0.4rem 0.35rem;
+          border-radius: 0.55rem;
+          background: rgba(2, 6, 23, 0.55);
+          border: 1px solid rgba(148, 163, 184, 0.22);
+        }
+
+        .timeline-col {
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          height: 100%;
+        }
+
+        .timeline-bar {
+          width: 100%;
+          min-width: 6px;
+          border-radius: 4px 4px 2px 2px;
+          position: relative;
+          transition: transform 0.2s ease, filter 0.2s ease;
+          box-shadow: 0 6px 14px rgba(2, 6, 23, 0.26);
+        }
+
+        .timeline-bar:hover {
+          transform: translateY(-2px);
+          filter: brightness(1.08);
+        }
+
+        .timeline-zone-tag {
+          position: absolute;
+          bottom: -3px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          border: 1px solid rgba(15, 23, 42, 0.9);
+        }
+
+        .timeline-axis-row {
+          margin-top: 0.45rem;
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.72rem;
+          color: var(--text-muted);
+        }
+
         .point-row {
           display: grid;
           grid-template-columns: 1fr auto;
@@ -1369,6 +1458,16 @@ export default function TennisGameTheory() {
 
           .panel-scroll {
             padding: 1rem;
+          }
+
+          .points-timeline-wrap {
+            margin: 0 1rem;
+            padding: 0.8rem;
+          }
+
+          .points-timeline {
+            gap: 0.2rem;
+            height: 74px;
           }
 
           [style*="grid-template-columns: '1fr 1fr'"] {

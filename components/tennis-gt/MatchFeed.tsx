@@ -1,6 +1,4 @@
 'use client'
-
-import { useMemo } from 'react'
 import type { MatchPoint, MatchResult, PlayerStrategy } from '@/types'
 import { ZONE_COLORS, ZONE_LABELS } from '@/lib/defaults'
 import { translations, type Language } from './translations'
@@ -71,101 +69,65 @@ function ZoneDonut({ freq }: { freq: { wide: number; body: number; T: number } }
   )
 }
 
-function PointRow({ point, playerAName, playerBName, language }: { point: MatchPoint; playerAName: string; playerBName: string; language: Language }) {
+function PointTimelineGraph({
+  points,
+  playerAName,
+  playerBName,
+  language,
+}: {
+  points: MatchPoint[]
+  playerAName: string
+  playerBName: string
+  language: Language
+}) {
   const t = translations[language]
-  const won = point.outcome === 'server_win'
-  const serverIsA = point.serverId === 0
-  const serverName = serverIsA ? playerAName : playerBName
-  const returnerName = serverIsA ? playerBName : playerAName
-  
-  // Determine who won the point
-  const serverWon = point.outcome === 'server_win'
-  
+  const maxShots = Math.max(1, ...points.map((p) => p.rallyLength))
+
   return (
-    <div className={`point-row-split ${serverWon ? 'point-won' : 'point-lost'}`}>
-      {/* Player A (or Server if A) - Left Side */}
-      <div className="point-side point-side-a">
-        <div className="point-side-header">
-          <span className="point-side-name">{playerAName}</span>
-          {serverIsA && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>S</span>}
+    <div className="points-timeline-wrap">
+      <div className="timeline-legend-row">
+        <div className="timeline-legend-item">
+          <span className="timeline-winner-dot" style={{ background: '#3b82f6' }} />
+          <span>{playerAName}</span>
         </div>
-        <div className="point-side-action">
-          {serverIsA ? (
-            <>
-              <div className="serve-indicator">
-                <div
-                  className="zone-dot-small"
-                  style={{ background: ZONE_COLORS[point.serveZone] }}
-                />
-                <span className="zone-label">{ZONE_LABELS[point.serveZone]}</span>
-              </div>
-              <span className="rally-info">Rally: {point.rallyLength} {t.shots}</span>
-              {serverWon && <span style={{ fontSize: '0.85rem', color: 'var(--success)' }}>✓</span>}
-            </>
-          ) : (
-            <>
-              <div className="read-indicator">
-                <span className="zone-label">{ZONE_LABELS[point.returnerRead]}</span>
-                <div
-                  className="zone-dot-small"
-                  style={{ background: ZONE_COLORS[point.returnerRead] }}
-                />
-              </div>
-              <span className="return-info">{t.read}</span>
-              {!serverWon && <span style={{ fontSize: '0.85rem', color: 'var(--success)' }}>✓</span>}
-            </>
-          )}
+        <div className="timeline-legend-item">
+          <span className="timeline-winner-dot" style={{ background: '#ef4444' }} />
+          <span>{playerBName}</span>
         </div>
-        {point.isBreakPoint && <span className="bp-badge">BP</span>}
+        <div className="timeline-note">{t.timelineHint}</div>
       </div>
 
-      {/* Center - Outcome & Rally Details */}
-      <div className="point-center">
-        <div className="point-outcome-badge">
-          {won ? (
-            <span className="outcome-win-badge">✓ WIN</span>
-          ) : (
-            <span className="outcome-loss-badge">✗ LOSS</span>
-          )}
-        </div>
-        <div className="point-read-info">
-          {t.read}: {ZONE_LABELS[point.returnerRead]}
-        </div>
+      <div className="points-timeline" role="img" aria-label={t.lastPoints}>
+        {points.map((point, idx) => {
+          const winnerId = point.outcome === 'server_win' ? point.serverId : point.serverId === 0 ? 1 : 0
+          const winnerColor = winnerId === 0 ? '#3b82f6' : '#ef4444'
+          const height = Math.max(10, Math.round((point.rallyLength / maxShots) * 58) + 10)
+
+          return (
+            <div key={point.id} className="timeline-col">
+              <div
+                className="timeline-bar"
+                style={{
+                  height: `${height}px`,
+                  background: `linear-gradient(180deg, ${winnerColor}, ${winnerColor}cc)`,
+                  borderTop: point.isBreakPoint ? '2px solid #f59e0b' : '2px solid transparent',
+                }}
+                title={`#${idx + 1} · ${winnerId === 0 ? playerAName : playerBName} · ${point.rallyLength} ${t.shots} · ${ZONE_LABELS[point.serveZone]}${point.isBreakPoint ? ' · BP' : ''}`}
+              >
+                <span
+                  className="timeline-zone-tag"
+                  style={{ background: ZONE_COLORS[point.serveZone] }}
+                  aria-hidden
+                />
+              </div>
+            </div>
+          )
+        })}
       </div>
 
-      {/* Player B (or Returner if A) - Right Side */}
-      <div className="point-side point-side-b">
-        <div className="point-side-header">
-          <span className="point-side-name">{playerBName}</span>
-          {!serverIsA && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>S</span>}
-        </div>
-        <div className="point-side-action">
-          {!serverIsA ? (
-            <>
-              <div className="serve-indicator">
-                <div
-                  className="zone-dot-small"
-                  style={{ background: ZONE_COLORS[point.serveZone] }}
-                />
-                <span className="zone-label">{ZONE_LABELS[point.serveZone]}</span>
-              </div>
-              <span className="rally-info">Rally: {point.rallyLength} {t.shots}</span>
-              {serverWon && <span style={{ fontSize: '0.85rem', color: 'var(--success)' }}>✓</span>}
-            </>
-          ) : (
-            <>
-              <div className="read-indicator">
-                <span className="zone-label">{ZONE_LABELS[point.returnerRead]}</span>
-                <div
-                  className="zone-dot-small"
-                  style={{ background: ZONE_COLORS[point.returnerRead] }}
-                />
-              </div>
-              <span className="return-info">{t.read}</span>
-              {!serverWon && <span style={{ fontSize: '0.85rem', color: 'var(--success)' }}>✓</span>}
-            </>
-          )}
-        </div>
+      <div className="timeline-axis-row">
+        <span>1</span>
+        <span>{points.length}</span>
       </div>
     </div>
   )
@@ -184,7 +146,7 @@ export default function MatchFeed({ result, playerAName, playerBName, language, 
   }
 
   const { stats, points, winner, finalScore } = result
-  const recentPoints = points.slice(-30).reverse()
+  const recentPoints = points.slice(-30)
 
   const setsDisplay = finalScore.sets
     .map((s) => `${s[0]}–${s[1]}`)
@@ -214,7 +176,7 @@ export default function MatchFeed({ result, playerAName, playerBName, language, 
             value={`${stats.serverWinPct[0]}% / ${stats.serverWinPct[1]}%`}
             sub={t.aSlashB}
           />
-          <StatCard label={t.avgRally} value={`${stats.avgRallyLength}`} sub={t.shotsPer} />
+          <StatCard label={t.avgRally} value={`${stats.avgShotsPerPoint}`} sub={t.shotsPer} />
           <StatCard
             label={t.breakPoints}
             value={`${stats.breakPointsConverted}/${stats.breakPoints}`}
@@ -269,11 +231,7 @@ export default function MatchFeed({ result, playerAName, playerBName, language, 
       <div className="section-label" style={{ marginTop: '1.5rem', paddingLeft: '2rem' }}>
         {t.lastPoints}
       </div>
-      <div className="points-list">
-        {recentPoints.map((p) => (
-          <PointRow key={p.id} point={p} playerAName={playerAName} playerBName={playerBName} language={language} />
-        ))}
-      </div>
+      <PointTimelineGraph points={recentPoints} playerAName={playerAName} playerBName={playerBName} language={language} />
     </div>
   )
 }

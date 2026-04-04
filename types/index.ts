@@ -47,7 +47,7 @@ export interface PointEvent {
   stage: RallyStage
   serverAction: string
   returnerAction: string
-  rally: number // shot count in rally
+  rally: number // shot count / shot index in the ongoing point
   outcome: PointOutcome
   winProbability: number // at moment of decision
   tacticalDecision?: TacticalDecision // strategic choice (e.g., 'lob', 'aggressive')
@@ -60,7 +60,7 @@ export interface MatchPoint {
   isSetPoint: boolean
   events: PointEvent[]
   outcome: PointOutcome
-  rallyLength: number
+  rallyLength: number // total shots in the point
   serveZone: Zone
   returnerRead: Zone
   serverId: 0 | 1  // 0 = Player A, 1 = Player B
@@ -98,6 +98,7 @@ export interface MatchStats {
   totalPoints: number
   serverWinPct: [number, number]
   avgRallyLength: number
+  avgShotsPerPoint: number
   aces: number
   breakPoints: number
   breakPointsConverted: number
