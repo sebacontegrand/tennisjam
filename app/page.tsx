@@ -53,6 +53,12 @@ export default function Home() {
               ⚙️ Game Theory Simulator
             </button>
           </Link>
+
+          <Link href="/tactics" className="w-full">
+            <button className="w-full h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95">
+              🎾 Tactics Board
+            </button>
+          </Link>
         </div>
       </div>
 
